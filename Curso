@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<title>Encurtador TinyURL - ADM FREDY</title>
+<style>
+body { background:#0f172a; color:white; font-family:Arial; text-align:center; padding:30px; }
+input,button { padding:10px; border:none; border-radius:8px; margin:5px; width:80%; font-size:16px; }
+button { background:#22c55e; color:white; cursor:pointer; }
+button:hover { background:#16a34a; }
+#resultado { margin-top:20px; font-size:18px; color:#38bdf8; }
+</style>
+</head>
+<body>
+<h2>🔗 Encurtador TinyURL - ADM FREDY</h2>
+<input type="text" id="linkOriginal" placeholder="Cole o link completo aqui">
+<br>
+<button onclick="encurtar()">Gerar Link Curto</button>
+<div id="resultado"></div>
+
+<script>
+function encurtar() {
+  const link = document.getElementById("linkOriginal").value.trim();
+  if (!link) {
+    alert("Cole um link primeiro!");
+    return;
+  }
+
+  const linkSeguro = encodeURIComponent(link);
+
+  fetch("https://api.tinyurl.com/create", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer 6hD3d7X8NQp2INI0AbzFb872jZJz1qTgctWm69wzcsFkywVvM55XmKGEDf99",
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      url: decodeURIComponent(linkSeguro), // envia o link limpo
+      domain: "tinyurl.com"
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.data && data.data.tiny_url) {
+      document.getElementById("resultado").innerHTML = `
+        ✅ <b>Link encurtado:</b><br>
+        <a href="${data.data.tiny_url}" target="_blank">${data.data.tiny_url}</a>
+      `;
+    } else {
+      document.getElementById("resultado").innerHTML = `
+        ❌ Erro TinyURL:<br>${JSON.stringify(data.errors || data)}
+      `;
+    }
+  })
+  .catch(err => {
+    document.getElementById("resultado").innerText = "Erro de conexão: " + err;
+  });
+}
+</script>
+</body>
+</html>
